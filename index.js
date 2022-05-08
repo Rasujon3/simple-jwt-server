@@ -10,6 +10,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const verifyJWT = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).send({ message: "unauthorized" });
+  }
+  const token = authHeader.split(" ")[1];
+};
+
 app.get("/", (req, res) => {
   res.send("Hello from simple JWT Server");
 });
@@ -30,6 +38,13 @@ app.post("/login", (req, res) => {
   } else {
     res.send({ success: false });
   }
+});
+
+app.get("/orders", verifyJWT, async (req, res) => {
+  res.send([
+    { id: 1, item: "sunglass" },
+    { id: 2, item: "moonglass" },
+  ]);
 });
 
 app.listen(port, () => {
