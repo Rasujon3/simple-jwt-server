@@ -16,6 +16,13 @@ const verifyJWT = (req, res, next) => {
     return res.status(401).send({ message: "unauthorized" });
   }
   const token = authHeader.split(" ")[1];
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).send({ message: "forbidden" });
+    }
+    req.decoded = decoded;
+    next();
+  });
 };
 
 app.get("/", (req, res) => {
@@ -32,7 +39,7 @@ app.post("/login", (req, res) => {
     const accessToken = jwt.sign(
       { email: user.email },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "10s" }
     );
     res.send({ success: true, accessToken: accessToken });
   } else {
